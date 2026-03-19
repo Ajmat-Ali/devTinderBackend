@@ -1,15 +1,25 @@
 const express = require("express");
+const { adminAuth } = require("./middlewares/auth");
 
 const app = express();
 
-app.use("/test", (req, res) => {
-  res.send(
-    "Hello from server this is my first server called Test.... ji............",
-  );
+// app.use("/admin", adminAuth);
+
+// app.use("/admin", (req, res, next) => {
+//   const token = true;
+//   if (!token) {
+//     res.status(401).send("Un-authorized");
+//   } else {
+//     next();
+//   }
+// });
+
+app.get("/admin/getAllUser", adminAuth, (req, res) => {
+  res.send("All user sent to admin");
 });
 
-app.use("/hello", (req, res) => {
-  res.send("Hi.. This is Hello Hello Hello");
+app.post("/admin/createNewUser", adminAuth, (req, res) => {
+  res.send("New User created by Admin");
 });
 
 app.listen(7777, () => {
