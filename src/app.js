@@ -2,18 +2,46 @@ const express = require("express");
 const { adminAuth } = require("./middlewares/auth");
 const connectDB = require("./config/database");
 const User = require("./models/user");
+const bcrypt = require("bcrypt");
+const validator = require("validator");
 
 const app = express();
 app.use(express.json());
 
 app.post("/signup", async (req, res) => {
   try {
-    const existingUser = await User.findOne({ email: req.body.email });
+    const {
+      firstName,
+      lastName,
+      email,
+      password,
+      age,
+      gender,
+      skills,
+      photoUrl,
+    } = req.body;
+
+    // validate all the req.body data here before saving by helper function
+
+    const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.status(400).send("Email already registered");
     }
 
-    const newUser = new User(req.body);
+    const passwordHash = await bcrypt.hash(password, 10);
+    console.log(passwordHash);
+
+    const newUser = new User({
+      firstName,
+      lastName,
+      email,
+      password: passwordHash,
+      age,
+      gender,
+      skills,
+      photoUrl,
+    });
+
     await newUser.save();
     res.send("New User created ");
   } catch (error) {
@@ -22,6 +50,35 @@ app.post("/signup", async (req, res) => {
     }
 
     res.status(500).send("Something went wrong" + error.message);
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+    // Validate credentials by helper function
+    const isValidEmail = validator.isEmail(email);
+    if (!isValidEmail) {
+      throw new Error("Invalid email id");
+    }
+
+    const isUserExist = await User.findOne({ email: email });
+    if (!isUserExist) {
+      throw new Error("Invalid user credential ");
+    }
+
+    const isCorrectPassword = await bcrypt.compare(
+      password,
+      isUserExist.password,
+    );
+
+    if (!isCorrectPassword) {
+      throw new Error("Invalid user credential ");
+    } else {
+      res.send("Login successful !");
+    }
+  } catch (error) {
+    res.status(400).send("ERROR " + error.message);
   }
 });
 

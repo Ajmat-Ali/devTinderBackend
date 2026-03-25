@@ -2,8 +2,6 @@ const mongoose = require("mongoose");
 var validator = require("validator");
 const { default: isEmail } = require("validator/lib/isEmail");
 
-// validator.isEmail("foo@bar.com");
-
 const userSchema = new mongoose.Schema(
   {
     firstName: {
