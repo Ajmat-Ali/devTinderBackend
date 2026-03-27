@@ -1,15 +1,29 @@
 const express = require("express");
-const { adminAuth } = require("./middlewares/auth");
+const { userAuth } = require("./middlewares/auth");
 const connectDB = require("./config/database");
 const User = require("./models/user");
 const bcrypt = require("bcrypt");
 const validator = require("validator");
+const {
+  normalizeSignUpData,
+  normalizeLoginData,
+} = require("./helpers/normalizeData");
+const { signUpValidation, loginValidation } = require("./helpers/validation");
+const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const app = express();
 app.use(express.json());
+app.use(cookieParser());
 
 app.post("/signup", async (req, res) => {
   try {
+    // Normalize Data
+    const data = normalizeSignUpData(req.body);
+
+    // Validate Data
+    signUpValidation(data);
+
     const {
       firstName,
       lastName,
@@ -21,15 +35,12 @@ app.post("/signup", async (req, res) => {
       photoUrl,
     } = req.body;
 
-    // validate all the req.body data here before saving by helper function
-
     const existingUser = await User.findOne({ email: email });
     if (existingUser) {
       return res.status(400).send("Email already registered");
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
-    console.log(passwordHash);
 
     const newUser = new User({
       firstName,
@@ -49,36 +60,52 @@ app.post("/signup", async (req, res) => {
       return res.status(400).send("Email already exists");
     }
 
-    res.status(500).send("Something went wrong" + error.message);
+    res.status(500).send("ERROR: " + error.message);
   }
 });
 
 app.post("/login", async (req, res) => {
   try {
-    const { email, password } = req.body;
-    // Validate credentials by helper function
-    const isValidEmail = validator.isEmail(email);
-    if (!isValidEmail) {
-      throw new Error("Invalid email id");
-    }
+    const data = normalizeLoginData(req.body);
+    loginValidation(data);
+
+    const { email, password } = data;
 
     const isUserExist = await User.findOne({ email: email });
+
     if (!isUserExist) {
       throw new Error("Invalid user credential ");
     }
 
-    const isCorrectPassword = await bcrypt.compare(
-      password,
-      isUserExist.password,
-    );
+    const isCorrectPassword = await isUserExist.validatePassword(password);
 
-    if (!isCorrectPassword) {
-      throw new Error("Invalid user credential ");
+    if (isCorrectPassword) {
+      const jwtToken = await isUserExist.getJWT();
+
+      res.cookie("cookieToken", jwtToken);
+      res.send("Login successful !" + jwtToken);
     } else {
-      res.send("Login successful !");
+      throw new Error("Invalid user credential ");
     }
   } catch (error) {
     res.status(400).send("ERROR " + error.message);
+  }
+});
+
+app.get("/profile", userAuth, async (req, res) => {
+  try {
+    const loggedInUser = req.user;
+    res.send(loggedInUser);
+  } catch (error) {
+    res.status(400).send("ERROR: " + error.message);
+  }
+});
+
+app.get("/newConnectionRequest", userAuth, async (req, res) => {
+  try {
+    res.send(" new connection request Made sucessfully!");
+  } catch (error) {
+    res.status("ERROR: " + error.message);
   }
 });
 
@@ -205,12 +232,3 @@ connectDB()
   .catch((err) => {
     console.log("Error while connceting with Database", err);
   });
-
-// const ajmat = {
-//   name: "Ajmat",
-//   email: "test@gmail.com",
-//   age: 22,
-// };
-
-// // const res = Object.keys(ajmat);
-// // console.log(res);
