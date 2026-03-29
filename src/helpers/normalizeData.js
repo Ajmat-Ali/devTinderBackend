@@ -20,6 +20,30 @@ const normalizeLoginData = (data) => {
   return { ...data, email: normalizedEmail };
 };
 
+const normalizeProfileEditData = (data) => {
+  // console.log(data, "Here Normalized");
+  let newData = { ...data };
+  if (data.firstName) {
+    const normz_firstName = firstNameNormalize(data.firstName);
+    newData = { ...newData, firstName: normz_firstName };
+  }
+  if (data.lastName) {
+    const normz_lastName = lastNameNormalize(data.lastName);
+    newData = { ...newData, lastName: normz_lastName };
+  }
+  if (data.gender) {
+    const normz_gender = genderNormalize(data.gender);
+    newData = { ...newData, gender: normz_gender };
+  }
+  // return {
+  //   ...data,
+  //   firstName: normz_firstName,
+  //   lastName: normz_lastName,
+  //   gender: normz_gender,
+  // };
+  return newData;
+};
+
 // ----------------------------------- Individual Normalize Data ------------------------------
 const emailNormalize = (email) => {
   return email.trim().toLowerCase();
@@ -31,4 +55,12 @@ const lastNameNormalize = (lastName) => {
   return lastName.trim().toLowerCase();
 };
 
-module.exports = { normalizeSignUpData, normalizeLoginData };
+const genderNormalize = (gender) => {
+  return gender.trim().toLowerCase();
+};
+
+module.exports = {
+  normalizeSignUpData,
+  normalizeLoginData,
+  normalizeProfileEditData,
+};
