@@ -35,12 +35,6 @@ const normalizeProfileEditData = (data) => {
     const normz_gender = genderNormalize(data.gender);
     newData = { ...newData, gender: normz_gender };
   }
-  // return {
-  //   ...data,
-  //   firstName: normz_firstName,
-  //   lastName: normz_lastName,
-  //   gender: normz_gender,
-  // };
   return newData;
 };
 
