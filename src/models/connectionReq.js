@@ -5,10 +5,12 @@ const sendConnectionReq = new mongoose.Schema(
     senderId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "User",
     },
     receiverId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
+      ref: "User",
     },
     status: {
       type: String,
@@ -21,6 +23,8 @@ const sendConnectionReq = new mongoose.Schema(
   },
   { timestamps: true },
 );
+
+sendConnectionReq.index({ senderId: 1, receiverId: 1 });
 
 const SendConnectionReq = mongoose.model(
   "sendConnectionReq",
