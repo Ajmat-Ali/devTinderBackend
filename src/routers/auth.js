@@ -47,8 +47,12 @@ authRouter.post("/signup", async (req, res) => {
       photoUrl,
     });
 
-    await newUser.save();
-    res.send("New User created ");
+    const userData = await newUser.save();
+
+    const jwtToken = await userData.getJWT();
+    res.cookie("cookieToken", jwtToken);
+
+    res.json({ message: "New User created", data: newUser });
   } catch (error) {
     if (error.code === 11000) {
       return res.status(400).send("Email already exists");
@@ -77,7 +81,7 @@ authRouter.post("/login", async (req, res) => {
       const jwtToken = await isUserExist.getJWT();
 
       res.cookie("cookieToken", jwtToken);
-      res.send("Login successful ! " + jwtToken);
+      res.send(isUserExist);
     } else {
       throw new Error("Invalid user credential ");
     }
@@ -90,7 +94,7 @@ authRouter.delete("/logout", async (req, res) => {
   res.cookie("cookieToken", null, {
     expires: new Date(Date.now()),
   });
-  res.send("User logout!!");
+  res.status(200).send("User logout!!");
 });
 
 module.exports = authRouter;

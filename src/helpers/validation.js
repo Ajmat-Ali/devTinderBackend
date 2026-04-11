@@ -40,7 +40,7 @@ const profileEditValidation = (data) => {
     allowedUpdate.includes(field),
   );
   if (!isAllowed) {
-    throw new Error("Some field are not allow to update");
+    throw new Error("Some fields are not allow to update");
   }
 
   if (data.firstName) {

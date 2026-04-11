@@ -6,20 +6,20 @@ const userAuth = async (req, res, next) => {
     const cookies = req.cookies;
     const { cookieToken } = cookies;
     if (!cookieToken) {
-      throw new Error("Invalid Token");
+      return res.status(401).send("Please login !!");
     }
 
     const decodedData = await jwt.verify(cookieToken, "SCERETE@KEY");
     const { _id } = decodedData;
     const loggedInUser = await User.findById(_id);
     if (!loggedInUser) {
-      throw new Error("No user found Please Login");
+      return res.status(401).send("No user found, Please Login");
     }
 
     req.user = loggedInUser;
     next();
   } catch (error) {
-    res.status(400).send("ERROR: " + error.message);
+    return res.status(401).send("Invalid token, Please login");
   }
 };
 

@@ -42,12 +42,6 @@ requestRouter.post(
       return res.status(400).json({ message: "Connection Already sent !" });
     }
 
-    // Validation # 4 (prevent send conncetion to yourself)
-    console.log(loggedInUser._id.toString());
-    console.log(receiverId);
-    console.log(status);
-    console.log(loggedInUser._id.toString() === receiverId);
-
     if (loggedInUser._id.toString() === receiverId) {
       return res
         .status(400)
@@ -66,11 +60,12 @@ requestRouter.post(
 );
 
 requestRouter.post(
-  "/reviewConnectionRequest/:status/:requestId",
+  "/request/review/:status/:requestId",
   userAuth,
   async (req, res) => {
     try {
       const { status, requestId } = req.params;
+
       const loggedInUser = req.user;
 
       const allowStatus = ["accepted", "rejected"];
