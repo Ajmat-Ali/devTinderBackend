@@ -9,10 +9,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://dev-tinder-ui-lemon.vercel.app/",
-    ],
+    origin: ["http://localhost:5173", "https://dev-tinder-ui-lemon.vercel.app"],
     credentials: true,
   }),
 );
