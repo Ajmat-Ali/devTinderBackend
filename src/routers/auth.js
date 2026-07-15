@@ -50,7 +50,14 @@ authRouter.post("/signup", async (req, res) => {
     const userData = await newUser.save();
 
     const jwtToken = await userData.getJWT();
-    res.cookie("cookieToken", jwtToken);
+    // res.cookie("cookieToken", jwtToken);
+
+    res.cookie("cookieToken", jwtToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 24 * 60 * 60 * 1000,
+    });
 
     res.json({ message: "New User created", data: newUser });
   } catch (error) {
@@ -80,7 +87,15 @@ authRouter.post("/login", async (req, res) => {
     if (isCorrectPassword) {
       const jwtToken = await isUserExist.getJWT();
 
-      res.cookie("cookieToken", jwtToken);
+      // res.cookie("cookieToken", jwtToken);
+
+      res.cookie("cookieToken", jwtToken, {
+        httpOnly: true,
+        secure: true,
+        sameSite: "none",
+        maxAge: 24 * 60 * 60 * 1000,
+      });
+
       res.send(isUserExist);
     } else {
       throw new Error("Invalid user credential ");
@@ -91,8 +106,15 @@ authRouter.post("/login", async (req, res) => {
 });
 
 authRouter.delete("/logout", async (req, res) => {
-  res.cookie("cookieToken", null, {
-    expires: new Date(Date.now()),
+  // res.cookie("cookieToken", null, {
+  //   expires: new Date(Date.now()),
+  // });
+
+  res.cookie("cookieToken", "", {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    expires: new Date(0),
   });
   res.status(200).send("User logout!!");
 });
