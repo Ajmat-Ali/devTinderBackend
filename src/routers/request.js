@@ -72,6 +72,9 @@ requestRouter.post(
       if (!allowStatus.includes(status)) {
         return res.status(400).json({ message: "Invalid Status", status });
       }
+      // console.log(requestId);
+      // console.log(loggedInUser._id);
+      // console.log(status);
 
       const isExistConnection = await SendConnectionReq.findOne({
         _id: requestId,
@@ -81,6 +84,7 @@ requestRouter.post(
       if (!isExistConnection) {
         return res.status(404).json({
           message: "Connection request not found",
+          data: isExistConnection,
         });
       }
 

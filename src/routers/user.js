@@ -88,9 +88,10 @@ userRouter.get("/feed", userAuth, async (req, res) => {
         { _id: { $nin: Array.from(hideUsers) } },
         { _id: { $ne: loggedInUser._id } },
       ],
-    }).select(safeToSend);
-    // .skip(skip)
-    // .limit(limit);
+    })
+      .select(safeToSend)
+      .skip(skip)
+      .limit(limit);
 
     res.send(feedData);
   } catch (error) {

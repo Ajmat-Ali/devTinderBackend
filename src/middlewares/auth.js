@@ -9,7 +9,7 @@ const userAuth = async (req, res, next) => {
       return res.status(401).send("Please login !!");
     }
 
-    const decodedData = await jwt.verify(cookieToken, "SCERETE@KEY");
+    const decodedData = await jwt.verify(cookieToken, process.env.JWT_SECRET);
     const { _id } = decodedData;
     const loggedInUser = await User.findById(_id);
     if (!loggedInUser) {
